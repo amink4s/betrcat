@@ -3,14 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React, { useEffect } from 'react';
-import { Heart, User, ShieldCheck } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Heart, User, ShieldCheck, Trophy } from 'lucide-react';
 import { useStore } from '../../store';
 import { GameStatus, CASINO_COLORS, TARGET_WORD } from '../../types';
 import { audio } from '../System/Audio';
+import { Leaderboard } from './Leaderboard';
 
 export const HUD: React.FC = () => {
-  const { score, lives, maxLives, collectedLetters, status, restartGame, startGame, playedToday, checkDailyStatus } = useStore();
+  const { score, lives, maxLives, collectedLetters, status, restartGame, startGame, playedToday, checkDailyStatus, user, userStats, fetchLeaderboard } = useStore();
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   useEffect(() => {
     checkDailyStatus();
@@ -19,13 +21,39 @@ export const HUD: React.FC = () => {
   if (status === GameStatus.MENU) {
       return (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-[100] bg-black text-white p-8 pointer-events-auto">
+              {showLeaderboard && (
+                <div onClick={() => setShowLeaderboard(false)}>
+                  <Leaderboard />
+                </div>
+              )}
+              
               <div className="absolute top-8 left-8 flex items-center space-x-2 text-cyan-400 opacity-80">
                   <User className="w-5 h-5" />
-                  <span className="font-mono text-sm tracking-widest uppercase">@farcaster_user</span>
+                  <span className="font-mono text-sm tracking-widest uppercase">
+                    {user ? `@${user.username}` : '@guest'}
+                  </span>
               </div>
               
+              <button
+                onClick={async () => {
+                  await fetchLeaderboard();
+                  setShowLeaderboard(true);
+                }}
+                className="absolute top-8 right-8 flex items-center space-x-2 text-yellow-400 hover:text-yellow-300 transition-colors pointer-events-auto"
+              >
+                <Trophy className="w-6 h-6" />
+                <span className="font-mono text-sm tracking-widest uppercase">Leaderboard</span>
+              </button>
+              
               <h1 className="text-7xl font-black mb-2 font-cyber text-cyan-400 drop-shadow-[0_0_20px_cyan]">BETR CAT</h1>
-              <p className="text-xl mb-12 tracking-[0.3em] text-red-500 font-bold uppercase">Collect B-E-T-R to Win</p>
+              <p className="text-xl mb-4 tracking-[0.3em] text-red-500 font-bold uppercase">Collect B-E-T-R to Win</p>
+              
+              {user && userStats && (
+                <div className="mb-8 text-center">
+                  <div className="text-gray-400 text-sm">Your High Score: <span className="text-white font-bold">{userStats.highScore}</span></div>
+                  <div className="text-gray-500 text-xs">{userStats.totalGames} games played • {userStats.completions} completed</div>
+                </div>
+              )}
               
               {playedToday ? (
                 <div className="flex flex-col items-center space-y-6">
@@ -59,11 +87,52 @@ export const HUD: React.FC = () => {
     return (
         <div className="absolute inset-0 bg-black/98 z-[100] text-white flex flex-col items-center justify-center p-4 pointer-events-auto">
             <h1 className="text-7xl font-black text-red-600 mb-4 font-cyber animate-pulse">GAME OVER</h1>
-            <div className="text-4xl mb-12 font-mono text-cyan-400">SCORE: {score.toLocaleString()}</div>
+            <div className="text-4xl mb-4 font-mono text-cyan-400">SCORE: {score.toLocaleString()}</div>
+            {userStats && userStats.highScore > 0 && (
+              <div className="text-xl mb-8 text-gray-400">
+                Your Best: <span className="text-white font-bold">{userStats.highScore.toLocaleString()}</span>
+                {score > userStats.highScore && <span className="text-green-400 ml-2">🎉 New Record!</span>}
+              </div>
+            )}
             <div className="flex space-x-4">
                 <button onClick={restartGame} className="px-10 py-4 bg-white text-black font-black rounded-full hover:bg-gray-200 transition-all">RETRY SESSION</button>
-                <button onClick={() => window.location.reload()} className="px-10 py-4 border-2 border-gray-700 text-gray-500 font-bold rounded-full">EXIT</button>
+                <button 
+                  onClick={async () => {
+                    await fetchLeaderboard();
+                    setShowLeaderboard(true);
+                  }} 4 font-mono font-bold text-center">ALL LETTERS COLLECTED! SCORE: {score.toLocaleString()}</div>
+            {userStats && (
+              <div className="text-xl mb-8 text-black/70">
+                {score > userStats.highScore && <span className="text-yellow-600 font-black">🎉 NEW HIGH SCORE! 🎉</span>}
+              </div>
+            )}
+            <div className="flex space-x-4">
+              <button 
+                onClick={async () => {
+                  await fetchLeaderboard();
+                  setShowLeaderboard(true);
+                }} 
+                className="px-16 py-6 bg-black text-white font-black rounded-full text-2xl shadow-2xl flex items-center gap-3"
+              >
+                <Trophy className="w-8 h-8" />
+                VIEW LEADERBOARD
+              </button>
             </div>
+            {showLeaderboard && (
+              <div onClick={() => setShowLeaderboard(false)}>
+                <Leaderboard />
+              </div>
+            )}
+                >
+                  <Trophy className="w-5 h-5" />
+                  LEADERBOARD
+                </button>
+            </div>
+            {showLeaderboard && (
+              <div onClick={() => setShowLeaderboard(false)}>
+                <Leaderboard />
+              </div>
+            )}
         </div>
     );
   }

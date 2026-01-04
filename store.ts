@@ -6,6 +6,29 @@
 import { create } from 'zustand';
 import { GameStatus, RUN_SPEED_BASE, TARGET_WORD } from './types';
 
+interface FarcasterUser {
+  fid: number;
+  username: string;
+  displayName: string;
+  pfpUrl?: string;
+}
+
+interface UserStats {
+  totalGames: number;
+  highScore: number;
+  completions: number;
+}
+
+interface LeaderboardEntry {
+  fid: number;
+  username: string;
+  displayName: string;
+  pfpUrl?: string;
+  highScore: number;
+  totalGames: number;
+  rank: number;
+}
+
 interface GameState {
   status: GameStatus;
   score: number;
@@ -16,6 +39,13 @@ interface GameState {
   laneCount: number;
   distance: number;
   playedToday: boolean;
+  
+  // Farcaster User Data
+  user: FarcasterUser | null;
+  userStats: UserStats | null;
+  leaderboard: LeaderboardEntry[];
+  isAuthenticated: boolean;
+  isLoading: boolean;
   
   // Inventory / Abilities
   hasDoubleJump: boolean;
@@ -29,18 +59,31 @@ interface GameState {
   collectLetter: (index: number) => void;
   setStatus: (status: GameStatus) => void;
   checkDailyStatus: () => void;
+  setUser: (user: FarcasterUser, stats: UserStats) => void;
+  fetchLeaderboard: () => Promise<void>;
+  recordGameSession: () => Promise<void>;
+  setLoading: (loading: boolean) => void;
 }
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export const useStore = create<GameState>((set, get) => ({
   status: GameStatus.MENU,
   score: 0,
-  lives: 7, // Updated to 7 lives
+  lives: 7,
   maxLives: 7,
   speed: 0,
   collectedLetters: [],
   laneCount: 3,
   distance: 0,
   playedToday: false,
+  
+  // Farcaster User Data
+  user: null,
+  userStats: null,
+  leaderboard: [],
+  isAuthenticated: false,
+  isLoading: false,
   
   hasDoubleJump: false,
   isImmortalityActive: false,
@@ -93,6 +136,8 @@ export const useStore = create<GameState>((set, get) => ({
       set({ lives: lives - 1 });
     } else {
       set({ lives: 0, status: GameStatus.GAME_OVER, speed: 0 });
+      // Record game session when game ends
+      setTimeout(() => get().recordGameSession(), 100);
     }
   },
 
@@ -122,9 +167,83 @@ export const useStore = create<GameState>((set, get) => ({
           speed: 0,
           score: get().score + 5000
         });
+        // Record game session when player wins
+        setTimeout(() => get().recordGameSession(), 100);
       }
     }
   },
 
   setStatus: (status) => set({ status }),
+
+  setUser: (user, stats) => set({ 
+    user, 
+    userStats: stats, 
+    isAuthenticated: true 
+  }),
+
+  setLoading: (loading) => set({ isLoading: loading }),
+
+  fetchLeaderboard: async () => {
+    try {
+      const { user } = get();
+      const url = user 
+        ? `${API_BASE_URL}/api/leaderboard?limit=100&fid=${user.fid}`
+        : `${API_BASE_URL}/api/leaderboard?limit=100`;
+      
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch leaderboard');
+      
+      const data = await response.json();
+      set({ leaderboard: data.leaderboard });
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+    }
+  },
+
+  recordGameSession: async () => {
+    const { user, score, distance, collectedLetters, status } = get();
+    
+    if (!user) {
+      console.warn('Cannot record game session: user not authenticated');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/game-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fid: user.fid,
+          score,
+          distance,
+          collectedLetters: TARGET_WORD.filter((_, i) => collectedLetters.includes(i)),
+          completed: status === GameStatus.VICTORY
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to record game session');
+      
+      // Refresh user stats and leaderboard after recording
+      const authResponse = await fetch(`${API_BASE_URL}/api/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fid: user.fid,
+          username: user.username,
+          displayName: user.displayName,
+          pfpUrl: user.pfpUrl
+        })
+      });
+
+      if (authResponse.ok) {
+        const data = await authResponse.json();
+        set({ userStats: data.stats });
+      }
+
+      // Refresh leaderboard
+      await get().fetchLeaderboard();
+    } catch (error) {
+      console.error('Error recording game session:', error);
+    }
+  },
 }));

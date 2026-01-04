@@ -1,0 +1,25 @@
+{
+  "name": "BETR CAT",
+  "short_name": "BETR CAT",
+  "description": "Collect B-E-T-R letters in this fast-paced 3D runner game. Compete on the leaderboard!",
+  "version": "1.0.0",
+  "manifest_version": 1,
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00ffff",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "orientation": "portrait"
+}

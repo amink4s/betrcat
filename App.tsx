@@ -4,9 +4,10 @@
 */
 
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
+import sdk from '@farcaster/miniapp-sdk';
 import { Environment } from './components/World/Environment';
 import { Player } from './components/World/Player';
 import { LevelManager } from './components/World/LevelManager';
@@ -68,6 +69,69 @@ function Scene() {
 }
 
 function App() {
+  const [isReady, setIsReady] = useState(false);
+  const { setUser, setLoading, fetchLeaderboard } = useStore();
+
+  useEffect(() => {
+    const initializeFarcaster = async () => {
+      try {
+        setLoading(true);
+        
+        // Initialize Farcaster SDK and call ready
+        const context = await sdk.actions.ready();
+        
+        if (context.user) {
+          // Authenticate user with backend
+          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+          const response = await fetch(`${API_BASE_URL}/api/auth`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fid: context.user.fid,
+              username: context.user.username,
+              displayName: context.user.displayName,
+              pfpUrl: context.user.pfpUrl
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            setUser(
+              {
+                fid: context.user.fid,
+                username: context.user.username,
+                displayName: context.user.displayName,
+                pfpUrl: context.user.pfpUrl
+              },
+              data.stats
+            );
+            
+            // Fetch leaderboard
+            await fetchLeaderboard();
+          }
+        }
+        
+        setIsReady(true);
+      } catch (error) {
+        console.error('Error initializing Farcaster:', error);
+        // Still show the app even if auth fails
+        setIsReady(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeFarcaster();
+  }, [setUser, setLoading, fetchLeaderboard]);
+
+  if (!isReady) {
+    return (
+      <div className="relative w-full h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-2xl">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden select-none">
       <HUD />
