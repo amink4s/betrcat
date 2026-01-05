@@ -77,8 +77,13 @@ function App() {
       try {
         setLoading(true);
         
-        // Initialize Farcaster SDK and call ready
-        const context = await sdk.actions.ready();
+        // Initialize Farcaster SDK - this must be called first
+        let context = await sdk.actions.ready();
+        
+        // QuickAuth: if user is not already signed in, request sign-in
+        if (!context.user) {
+          context = await sdk.actions.requestSignIn();
+        }
         
         if (context.user) {
           // Authenticate user with backend
