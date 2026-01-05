@@ -9,6 +9,7 @@ import { useStore } from '../../store';
 import { GameStatus, CASINO_COLORS, TARGET_WORD } from '../../types';
 import { audio } from '../System/Audio';
 import { Leaderboard } from './Leaderboard';
+import { MobileControls } from './MobileControls';
 import sdk from '@farcaster/miniapp-sdk';
 
 export const HUD: React.FC = () => {
@@ -177,6 +178,8 @@ export const HUD: React.FC = () => {
         <div className="flex justify-end items-end text-cyan-500 font-black text-xl italic uppercase tracking-tighter">
             <div className="bg-black/40 px-4 py-2 rounded-lg border-r-4 border-red-500">HI-STAKES MODE</div>
         </div>
+
+        <MobileControls />
     </div>
   );
 };
