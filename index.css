@@ -1,21 +1,23 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-cyber: 'Orbitron', sans-serif;
+  --font-rajdhani: 'Rajdhani', sans-serif;
+}
 
 body {
   margin: 0;
   padding: 0;
   overflow: hidden;
   background-color: #020005;
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--font-rajdhani);
   touch-action: none;
 }
 
 .font-cyber {
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--font-cyber);
 }
 
-/* Custom scrollbar for HUD if needed */
 ::-webkit-scrollbar {
   width: 0px;
   background: transparent;
