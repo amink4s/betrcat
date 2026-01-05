@@ -4,10 +4,15 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "vite",
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     }
   ],
   "headers": [
@@ -28,9 +33,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "VITE_API_BASE_URL": "@vite_api_base_url"
-  }
+  ]
 }

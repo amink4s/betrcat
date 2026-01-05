@@ -22,16 +22,32 @@ export default async function handler(
   }
 
   try {
+    // Log environment check (without exposing the actual URL)
+    if (!process.env.DATABASE_URL) {
+      console.error('DATABASE_URL is not set');
+      return res.status(500).json({ 
+        error: 'Database configuration error',
+        details: 'DATABASE_URL environment variable is not configured'
+      });
+    }
+    
+    console.log('Starting database initialization...');
     await initializeDatabase();
+    console.log('Database initialization completed');
+    
     return res.status(200).json({ 
       message: 'Database initialized successfully',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error('Database initialization error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error('Error stack:', errorStack);
+    
     return res.status(500).json({ 
       error: 'Failed to initialize database',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: errorMessage
     });
   }
 }
