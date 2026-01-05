@@ -22,6 +22,10 @@ export default async function handler(
   }
 
   try {
+    if (!sql) {
+      return res.status(500).json({ error: 'Database not configured' });
+    }
+
     const { fid, username, displayName, pfpUrl } = req.body;
 
     if (!fid || !username) {

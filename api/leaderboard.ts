@@ -22,6 +22,10 @@ export default async function handler(
   }
 
   try {
+    if (!sql) {
+      return res.status(500).json({ error: 'Database not configured' });
+    }
+
     const { limit = '100', fid } = req.query;
     const limitNum = parseInt(limit as string, 10);
 

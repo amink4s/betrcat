@@ -3,11 +3,13 @@
  */
 import { neon } from '@neondatabase/serverless';
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is not set');
-}
-
-export const sql = neon(process.env.DATABASE_URL);
+export const sql = (() => {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    return null; // Will be handled by handlers
+  }
+  return neon(databaseUrl);
+})();
 
 export interface User {
   id: number;
@@ -41,6 +43,10 @@ export interface LeaderboardEntry {
 
 // Initialize database schema
 export async function initializeDatabase() {
+  if (!sql) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
+  
   try {
     // Create users table
     await sql`
