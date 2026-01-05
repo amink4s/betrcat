@@ -100,29 +100,8 @@ export const HUD: React.FC = () => {
                   onClick={async () => {
                     await fetchLeaderboard();
                     setShowLeaderboard(true);
-                  }} 4 font-mono font-bold text-center">ALL LETTERS COLLECTED! SCORE: {score.toLocaleString()}</div>
-            {userStats && (
-              <div className="text-xl mb-8 text-black/70">
-                {score > userStats.highScore && <span className="text-yellow-600 font-black">🎉 NEW HIGH SCORE! 🎉</span>}
-              </div>
-            )}
-            <div className="flex space-x-4">
-              <button 
-                onClick={async () => {
-                  await fetchLeaderboard();
-                  setShowLeaderboard(true);
-                }} 
-                className="px-16 py-6 bg-black text-white font-black rounded-full text-2xl shadow-2xl flex items-center gap-3"
-              >
-                <Trophy className="w-8 h-8" />
-                VIEW LEADERBOARD
-              </button>
-            </div>
-            {showLeaderboard && (
-              <div onClick={() => setShowLeaderboard(false)}>
-                <Leaderboard />
-              </div>
-            )}
+                  }} 
+                  className="px-10 py-4 bg-cyan-500 text-black font-black rounded-full hover:bg-cyan-400 transition-all flex items-center gap-2"
                 >
                   <Trophy className="w-5 h-5" />
                   LEADERBOARD

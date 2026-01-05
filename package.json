@@ -24,6 +24,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^22.14.0",
     "@vercel/node": "^2.3.0",
     "@vitejs/plugin-react": "^5.0.0",
