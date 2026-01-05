@@ -9,6 +9,7 @@ import { useStore } from '../../store';
 import { GameStatus, CASINO_COLORS, TARGET_WORD } from '../../types';
 import { audio } from '../System/Audio';
 import { Leaderboard } from './Leaderboard';
+import sdk from '@farcaster/miniapp-sdk';
 
 export const HUD: React.FC = () => {
   const { score, lives, maxLives, collectedLetters, status, restartGame, startGame, playedToday, checkDailyStatus, user, userStats, fetchLeaderboard } = useStore();
@@ -121,7 +122,18 @@ export const HUD: React.FC = () => {
         <div className="absolute inset-0 bg-cyan-500 z-[100] text-black flex flex-col items-center justify-center p-4 pointer-events-auto">
             <h1 className="text-8xl font-black mb-4 font-cyber uppercase italic text-center">MISSION COMPLETE</h1>
             <div className="text-3xl mb-12 font-mono font-bold text-center">ALL LETTERS COLLECTED! SCORE: {score.toLocaleString()}</div>
-            <button onClick={() => window.location.reload()} className="px-16 py-6 bg-black text-white font-black rounded-full text-2xl shadow-2xl">SUBMIT TO FARCASTER</button>
+            <button 
+              onClick={async () => {
+                const appUrl = window.location.origin;
+                await sdk.actions.composeCast({
+                  text: `I scored ${score.toLocaleString()} in betrcat game!`,
+                  embeds: [appUrl]
+                });
+              }} 
+              className="px-16 py-6 bg-black text-white font-black rounded-full text-2xl shadow-2xl"
+            >
+              SUBMIT TO FARCASTER
+            </button>
         </div>
     );
   }
