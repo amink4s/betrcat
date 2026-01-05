@@ -66,7 +66,7 @@ export const HUD: React.FC = () => {
                       onClick={() => { audio.init(); startGame(); }}
                       className="px-10 py-3 border-2 border-cyan-500 text-cyan-500 rounded-full hover:bg-cyan-500 hover:text-black transition-all font-bold"
                     >
-                        DEBUG: PLAY AGAIN
+                        PLAY AGAIN
                     </button>
                 </div>
               ) : (
