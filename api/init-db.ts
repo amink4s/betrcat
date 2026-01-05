@@ -2,7 +2,7 @@
  * Database initialization endpoint (run once to set up tables)
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { initializeDatabase } from './db';
+import { initializeDatabase } from './db.js';
 
 export default async function handler(
   req: VercelRequest,

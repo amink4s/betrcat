@@ -2,7 +2,7 @@
  * Leaderboard API endpoint
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { sql } from './db';
+import { sql } from './db.js';
 
 export default async function handler(
   req: VercelRequest,
