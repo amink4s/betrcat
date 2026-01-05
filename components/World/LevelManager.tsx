@@ -115,7 +115,7 @@ export const LevelManager: React.FC = () => {
                     color: CASINO_COLORS[idx],
                     targetIndex: idx
                 });
-                nextLetterDistance.current += 280;
+                nextLetterDistance.current += 380;
             }
         } else {
             const roll = Math.random();
