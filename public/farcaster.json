@@ -1,0 +1,30 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjQ3NzEyNiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDIxOGE5YjU4QjkyOWRCRDBEOTEzMkFENEZlYzBkRkRCNzkyNDUyYkQifQ",
+    "payload": "eyJkb21haW4iOiJiZXRyY2F0LnZlcmNlbC5hcHAifQ",
+    "signature": "N6GIz+ZwhFrTlCYddbIkVbM9Om0AJZ7uinBQCSlX6vkTmfhGwHDgkHBzwhcQLEmkpSxlS49e16E8holIhqCcRRs="
+  },
+  "frame": {
+    "name": "BETRCat",
+    "version": "1",
+    "iconUrl": "https://betrcat.vercel.app/icon.png",
+    "homeUrl": "https://betrcat.vercel.app",
+    "imageUrl": "https://betrcat.vercel.app/image.png",
+    "buttonTitle": "BETRCat",
+    "splashImageUrl": "https://betrcat.vercel.app/splash.png",
+    "splashBackgroundColor": "#000000",
+    "webhookUrl": "https://betrcat.vercel.app/api/webhook",
+    "description": "a game for betrmint",
+    "primaryCategory": "games",
+    "heroImageUrl": "https://betrcat.vercel.app/image.png",
+    "tags": [
+      "betrmint",
+      "runner"
+    ],
+    "tagline": "a game for betrmint",
+    "ogTitle": "betrcat",
+    "ogDescription": "a game for betrmint",
+    "ogImageUrl": "https://betrcat.vercel.app/image.pngv",
+    "subtitle": "betrcat"
+  }
+}
