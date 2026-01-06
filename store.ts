@@ -190,13 +190,18 @@ export const useStore = create<GameState>((set, get) => ({
         ? `${API_BASE_URL}/api/leaderboard?limit=100&fid=${user.fid}`
         : `${API_BASE_URL}/api/leaderboard?limit=100`;
       
+      console.log('[Store] Fetching leaderboard from:', url);
       const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch leaderboard');
+      if (!response.ok) {
+        console.error('[Store] Leaderboard fetch failed with status:', response.status);
+        throw new Error('Failed to fetch leaderboard');
+      }
       
       const data = await response.json();
+      console.log('[Store] Leaderboard fetched:', data.leaderboard?.length || 0, 'entries');
       set({ leaderboard: data.leaderboard });
     } catch (error) {
-      console.error('Error fetching leaderboard:', error);
+      console.error('[Store] Error fetching leaderboard:', error);
     }
   },
 
@@ -204,11 +209,19 @@ export const useStore = create<GameState>((set, get) => ({
     const { user, score, distance, collectedLetters, status } = get();
     
     if (!user) {
-      console.warn('Cannot record game session: user not authenticated');
+      console.warn('[Store] Cannot record game session: user not authenticated');
       return;
     }
 
     try {
+      console.log('[Store] Recording game session:', {
+        fid: user.fid,
+        score,
+        distance,
+        lettersCollected: collectedLetters.length,
+        completed: status === GameStatus.VICTORY
+      });
+      
       const response = await fetch(`${API_BASE_URL}/api/game-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -221,9 +234,15 @@ export const useStore = create<GameState>((set, get) => ({
         })
       });
 
-      if (!response.ok) throw new Error('Failed to record game session');
+      if (!response.ok) {
+        console.error('[Store] Failed to record game session, status:', response.status);
+        throw new Error('Failed to record game session');
+      }
+      
+      console.log('[Store] Game session recorded successfully');
       
       // Refresh user stats and leaderboard after recording
+      console.log('[Store] Refreshing user stats...');
       const authResponse = await fetch(`${API_BASE_URL}/api/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -237,13 +256,15 @@ export const useStore = create<GameState>((set, get) => ({
 
       if (authResponse.ok) {
         const data = await authResponse.json();
+        console.log('[Store] User stats refreshed:', data.stats);
         set({ userStats: data.stats });
       }
 
       // Refresh leaderboard
+      console.log('[Store] Refreshing leaderboard...');
       await get().fetchLeaderboard();
     } catch (error) {
-      console.error('Error recording game session:', error);
+      console.error('[Store] Error recording game session:', error);
     }
   },
 }));
