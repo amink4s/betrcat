@@ -62,7 +62,7 @@ export const MobileControls: React.FC = () => {
             handleButtonUp('left');
           }}
           className={`
-            w-14 h-14 sm:w-16 sm:h-16 rounded-full font-bold text-lg sm:text-xl uppercase font-cyber
+            w-[5.25rem] h-[5.25rem] sm:w-[6rem] sm:h-[6rem] rounded-full font-bold text-[1.6875rem] sm:text-[1.875rem] uppercase font-cyber
             transition-all active:scale-95 flex items-center justify-center
             border-2 shadow-lg
             ${isPressed.left
@@ -87,7 +87,7 @@ export const MobileControls: React.FC = () => {
             handleButtonUp('right');
           }}
           className={`
-            w-14 h-14 sm:w-16 sm:h-16 rounded-full font-bold text-lg sm:text-xl uppercase font-cyber
+            w-[5.25rem] h-[5.25rem] sm:w-[6rem] sm:h-[6rem] rounded-full font-bold text-[1.6875rem] sm:text-[1.875rem] uppercase font-cyber
             transition-all active:scale-95 flex items-center justify-center
             border-2 shadow-lg
             ${isPressed.right
@@ -108,7 +108,7 @@ export const MobileControls: React.FC = () => {
           handleButtonDown('jump');
         }}
         className={`
-          w-16 h-16 sm:w-20 sm:h-20 rounded-full font-bold text-xl sm:text-2xl uppercase font-cyber
+          w-[6rem] h-[6rem] sm:w-[7.5rem] sm:h-[7.5rem] rounded-full font-bold text-[1.875rem] sm:text-[3rem] uppercase font-cyber
           transition-all active:scale-95 flex items-center justify-center
           border-2 shadow-lg pointer-events-auto
           ${isPressed.jump
