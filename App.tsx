@@ -80,8 +80,13 @@ function App() {
         
         // Initialize Farcaster SDK - this must be called first
         console.log('[QuickAuth] Calling sdk.actions.ready()...');
-        const context = await sdk.actions.ready();
-        console.log('[QuickAuth] SDK ready. Context:', {
+        await sdk.actions.ready();
+        console.log('[QuickAuth] SDK ready called');
+        
+        // Get context to check if user is authenticated
+        console.log('[QuickAuth] Getting SDK context...');
+        const context = await sdk.context;
+        console.log('[QuickAuth] Context received:', {
           hasUser: !!context.user,
           user: context.user ? {
             fid: context.user.fid,
@@ -101,9 +106,9 @@ function App() {
           console.error('[QuickAuth] Failed to get token:', tokenError);
         }
         
-        // Get user context - QuickAuth should automatically handle authentication
+        // Check if user is authenticated via context
         if (context.user) {
-          console.log('[QuickAuth] User authenticated via QuickAuth:', {
+          console.log('[QuickAuth] User authenticated:', {
             fid: context.user.fid,
             username: context.user.username,
             displayName: context.user.displayName,
@@ -119,8 +124,8 @@ function App() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               fid: context.user.fid,
-              username: context.user.username,
-              displayName: context.user.displayName,
+              username: context.user.username || `user_${context.user.fid}`,
+              displayName: context.user.displayName || context.user.username || `User ${context.user.fid}`,
               pfpUrl: context.user.pfpUrl
             })
           });
@@ -134,8 +139,8 @@ function App() {
             setUser(
               {
                 fid: context.user.fid,
-                username: context.user.username,
-                displayName: context.user.displayName,
+                username: context.user.username || `user_${context.user.fid}`,
+                displayName: context.user.displayName || context.user.username || `User ${context.user.fid}`,
                 pfpUrl: context.user.pfpUrl
               },
               data.stats
@@ -150,7 +155,7 @@ function App() {
             console.error('[QuickAuth] Backend auth failed:', errorText);
           }
         } else {
-          console.warn('[QuickAuth] No user found after QuickAuth - user may not be authenticated');
+          console.warn('[QuickAuth] No user found in context - user may not be authenticated in Farcaster');
         }
         
         setIsReady(true);
