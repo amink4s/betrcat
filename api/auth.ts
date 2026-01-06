@@ -86,9 +86,10 @@ export default async function handler(
         stack: error.stack
       });
     }
+    // NOTE: In production, consider removing error details from response for security
     return res.status(500).json({ 
       error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: process.env.NODE_ENV === 'production' ? undefined : (error instanceof Error ? error.message : 'Unknown error')
     });
   }
 }

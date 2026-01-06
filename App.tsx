@@ -95,13 +95,14 @@ function App() {
           } : null
         });
         
-        // Use QuickAuth to get token automatically
+        // Use QuickAuth to get token (for debugging and future use)
         console.log('[QuickAuth] Attempting to get QuickAuth token...');
         let token: string | null = null;
         try {
           const tokenResult = await sdk.quickAuth.getToken();
           token = tokenResult.token;
-          console.log('[QuickAuth] Token obtained successfully:', token ? 'Token present' : 'No token');
+          console.log('[QuickAuth] Token obtained successfully:', token ? 'Token present (length: ' + token.length + ')' : 'No token');
+          // TODO: Consider using token for backend authentication in the future
         } catch (tokenError) {
           console.error('[QuickAuth] Failed to get token:', tokenError);
         }
