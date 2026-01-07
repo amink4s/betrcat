@@ -41,10 +41,13 @@ export const LevelManager: React.FC = () => {
 
     // Track elapsed time and expand lanes at 30 seconds
     const newElapsed = elapsedSeconds + delta;
-    useStore.setState({ elapsedSeconds: newElapsed });
+    const shouldExpandLanes = newElapsed >= 30 && laneCount < 5;
     
-    if (newElapsed >= 30 && laneCount < 5) {
-      useStore.setState({ laneCount: 5 });
+    // Combine state updates to avoid multiple re-renders
+    if (shouldExpandLanes) {
+      useStore.setState({ elapsedSeconds: newElapsed, laneCount: 5 });
+    } else {
+      useStore.setState({ elapsedSeconds: newElapsed });
     }
 
     const playerObject = state.scene.getObjectByName('ActualPlayer');
