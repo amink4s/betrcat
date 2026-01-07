@@ -19,7 +19,7 @@ const LOGO_FRAME_GEO = new THREE.TorusGeometry(0.75, 0.06, 16, 32);
 const FONT_URL = "https://cdn.jsdelivr.net/npm/three/examples/fonts/helvetiker_bold.typeface.json";
 
 export const LevelManager: React.FC = () => {
-  const { status, speed, collectGem, collectLetter, collectedLetters, laneCount } = useStore();
+  const { status, speed, collectGem, collectLetter, collectedLetters, laneCount, elapsedSeconds } = useStore();
   const objectsRef = useRef<GameObject[]>([]);
   const [, setRenderTrigger] = useState(0);
   const distanceTraveled = useRef(0);
@@ -38,6 +38,17 @@ export const LevelManager: React.FC = () => {
     if (status !== GameStatus.PLAYING) return;
     const dist = speed * delta;
     distanceTraveled.current += dist;
+
+    // Track elapsed time and expand lanes at 30 seconds
+    const newElapsed = elapsedSeconds + delta;
+    const shouldExpandLanes = newElapsed >= 30 && laneCount < 5;
+    
+    // Combine state updates to avoid multiple re-renders
+    if (shouldExpandLanes) {
+      useStore.setState({ elapsedSeconds: newElapsed, laneCount: 5 });
+    } else {
+      useStore.setState({ elapsedSeconds: newElapsed });
+    }
 
     const playerObject = state.scene.getObjectByName('ActualPlayer');
     if (!playerObject) return;
