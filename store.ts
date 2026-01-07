@@ -38,7 +38,7 @@ interface GameState {
   collectedLetters: number[]; 
   laneCount: number;
   distance: number;
-  elapsedMs: number;
+  elapsedSeconds: number;
   playedToday: boolean;
   
   // Farcaster User Data
@@ -77,7 +77,7 @@ export const useStore = create<GameState>((set, get) => ({
   collectedLetters: [],
   laneCount: 3,
   distance: 0,
-  elapsedMs: 0,
+  elapsedSeconds: 0,
   playedToday: false,
   
   // Farcaster User Data
@@ -111,7 +111,7 @@ export const useStore = create<GameState>((set, get) => ({
       collectedLetters: [],
       laneCount: 3,
       distance: 0,
-      elapsedMs: 0,
+      elapsedSeconds: 0,
       playedToday: true,
       hasDoubleJump: false,
       isImmortalityActive: false
@@ -126,7 +126,7 @@ export const useStore = create<GameState>((set, get) => ({
       speed: RUN_SPEED_BASE,
       collectedLetters: [],
       distance: 0,
-      elapsedMs: 0,
+      elapsedSeconds: 0,
       laneCount: 3,
       isImmortalityActive: false
     });
