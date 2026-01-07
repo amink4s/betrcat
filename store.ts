@@ -38,6 +38,7 @@ interface GameState {
   collectedLetters: number[]; 
   laneCount: number;
   distance: number;
+  elapsedMs: number;
   playedToday: boolean;
   
   // Farcaster User Data
@@ -76,6 +77,7 @@ export const useStore = create<GameState>((set, get) => ({
   collectedLetters: [],
   laneCount: 3,
   distance: 0,
+  elapsedMs: 0,
   playedToday: false,
   
   // Farcaster User Data
@@ -109,6 +111,7 @@ export const useStore = create<GameState>((set, get) => ({
       collectedLetters: [],
       laneCount: 3,
       distance: 0,
+      elapsedMs: 0,
       playedToday: true,
       hasDoubleJump: false,
       isImmortalityActive: false
@@ -123,6 +126,7 @@ export const useStore = create<GameState>((set, get) => ({
       speed: RUN_SPEED_BASE,
       collectedLetters: [],
       distance: 0,
+      elapsedMs: 0,
       laneCount: 3,
       isImmortalityActive: false
     });
@@ -152,8 +156,8 @@ export const useStore = create<GameState>((set, get) => ({
     if (!collectedLetters.includes(index)) {
       const newLetters = [...collectedLetters, index];
       
-      // Speed up slightly per letter to maintain challenge
-      const nextSpeed = speed + (RUN_SPEED_BASE * 0.15);
+      // Speed up significantly per letter to maintain challenge
+      const nextSpeed = speed + (RUN_SPEED_BASE * 0.40);
 
       set({ 
         collectedLetters: newLetters,

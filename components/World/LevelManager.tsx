@@ -24,12 +24,14 @@ export const LevelManager: React.FC = () => {
   const [, setRenderTrigger] = useState(0);
   const distanceTraveled = useRef(0);
   const nextLetterDistance = useRef(100);
+  const elapsedRef = useRef(0);
 
   useEffect(() => {
     if (status === GameStatus.MENU || status === GameStatus.GAME_OVER || status === GameStatus.VICTORY) {
         objectsRef.current = [];
         distanceTraveled.current = 0;
         nextLetterDistance.current = 100;
+        elapsedRef.current = 0;
         setRenderTrigger(t => t + 1);
     }
   }, [status]);
@@ -38,6 +40,12 @@ export const LevelManager: React.FC = () => {
     if (status !== GameStatus.PLAYING) return;
     const dist = speed * delta;
     distanceTraveled.current += dist;
+
+    // Track elapsed time and expand lanes at 30 seconds
+    elapsedRef.current += delta;
+    if (elapsedRef.current >= 30 && laneCount < 5) {
+      useStore.setState({ laneCount: 5 });
+    }
 
     const playerObject = state.scene.getObjectByName('ActualPlayer');
     if (!playerObject) return;
