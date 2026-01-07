@@ -76,49 +76,99 @@ function App() {
     const initializeFarcaster = async () => {
       try {
         setLoading(true);
+        console.log('[QuickAuth] Starting Farcaster initialization...');
         
         // Initialize Farcaster SDK - this must be called first
-        let context = await sdk.actions.ready();
+        console.log('[QuickAuth] Calling sdk.actions.ready()...');
+        await sdk.actions.ready();
+        console.log('[QuickAuth] SDK ready called');
         
-        // QuickAuth: if user is not already signed in, request sign-in
-        if (!context.user) {
-          context = await sdk.actions.requestSignIn();
+        // Get context to check if user is authenticated
+        console.log('[QuickAuth] Getting SDK context...');
+        const context = await sdk.context;
+        console.log('[QuickAuth] Context received:', {
+          hasUser: !!context.user,
+          user: context.user ? {
+            fid: context.user.fid,
+            username: context.user.username,
+            displayName: context.user.displayName
+          } : null
+        });
+        
+        // Use QuickAuth to get token (for debugging and future use)
+        console.log('[QuickAuth] Attempting to get QuickAuth token...');
+        let token: string | null = null;
+        try {
+          const tokenResult = await sdk.quickAuth.getToken();
+          token = tokenResult.token;
+          console.log('[QuickAuth] Token obtained successfully:', token ? 'Token present (length: ' + token.length + ')' : 'No token');
+          // TODO: Consider using token for backend authentication in the future
+        } catch (tokenError) {
+          console.error('[QuickAuth] Failed to get token:', tokenError);
         }
         
+        // Check if user is authenticated via context
         if (context.user) {
+          console.log('[QuickAuth] User authenticated:', {
+            fid: context.user.fid,
+            username: context.user.username,
+            displayName: context.user.displayName,
+            hasPfp: !!context.user.pfpUrl
+          });
+          
           // Authenticate user with backend
           const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+          console.log('[QuickAuth] Sending auth request to backend:', `${API_BASE_URL}/api/auth`);
+          
           const response = await fetch(`${API_BASE_URL}/api/auth`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               fid: context.user.fid,
-              username: context.user.username,
-              displayName: context.user.displayName,
+              username: context.user.username || `user_${context.user.fid}`,
+              displayName: context.user.displayName || context.user.username || `User ${context.user.fid}`,
               pfpUrl: context.user.pfpUrl
             })
           });
 
+          console.log('[QuickAuth] Backend response status:', response.status);
+          
           if (response.ok) {
             const data = await response.json();
+            console.log('[QuickAuth] Backend auth successful, user stats:', data.stats);
+            
             setUser(
               {
                 fid: context.user.fid,
-                username: context.user.username,
-                displayName: context.user.displayName,
+                username: context.user.username || `user_${context.user.fid}`,
+                displayName: context.user.displayName || context.user.username || `User ${context.user.fid}`,
                 pfpUrl: context.user.pfpUrl
               },
               data.stats
             );
             
             // Fetch leaderboard
+            console.log('[QuickAuth] Fetching leaderboard...');
             await fetchLeaderboard();
+            console.log('[QuickAuth] Leaderboard fetched successfully');
+          } else {
+            const errorText = await response.text();
+            console.error('[QuickAuth] Backend auth failed:', errorText);
           }
+        } else {
+          console.warn('[QuickAuth] No user found in context - user may not be authenticated in Farcaster');
         }
         
         setIsReady(true);
+        console.log('[QuickAuth] Initialization complete');
       } catch (error) {
-        console.error('Error initializing Farcaster:', error);
+        console.error('[QuickAuth] Error initializing Farcaster:', error);
+        if (error instanceof Error) {
+          console.error('[QuickAuth] Error details:', {
+            message: error.message,
+            stack: error.stack
+          });
+        }
         // Still show the app even if auth fails
         setIsReady(true);
       } finally {

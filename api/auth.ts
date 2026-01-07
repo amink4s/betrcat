@@ -22,17 +22,25 @@ export default async function handler(
   }
 
   try {
+    console.log('[Auth API] Received auth request');
+    console.log('[Auth API] Request body:', JSON.stringify(req.body));
+    
     if (!sql) {
+      console.error('[Auth API] Database not configured - DATABASE_URL missing');
       return res.status(500).json({ error: 'Database not configured' });
     }
 
     const { fid, username, displayName, pfpUrl } = req.body;
 
     if (!fid || !username) {
+      console.error('[Auth API] Missing required fields:', { fid, username });
       return res.status(400).json({ error: 'Missing required fields: fid, username' });
     }
+    
+    console.log('[Auth API] Processing user:', { fid, username, displayName, hasPfpUrl: !!pfpUrl });
 
     // Upsert user (insert or update if exists)
+    console.log('[Auth API] Upserting user to database...');
     const result = await sql`
       INSERT INTO users (fid, username, display_name, pfp_url, last_seen)
       VALUES (${fid}, ${username}, ${displayName || username}, ${pfpUrl || null}, NOW())
@@ -46,8 +54,10 @@ export default async function handler(
     `;
 
     const user = result[0];
+    console.log('[Auth API] User upserted successfully:', { id: user.id, fid: user.fid, username: user.username });
 
     // Get user stats
+    console.log('[Auth API] Fetching user stats...');
     const stats = await sql`
       SELECT 
         COUNT(*) as total_games,
@@ -56,6 +66,9 @@ export default async function handler(
       FROM game_sessions
       WHERE user_id = ${user.id}
     `;
+
+    console.log('[Auth API] User stats retrieved:', stats[0]);
+    console.log('[Auth API] Auth request completed successfully');
 
     return res.status(200).json({
       user,
@@ -66,7 +79,17 @@ export default async function handler(
       }
     });
   } catch (error) {
-    console.error('Auth error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('[Auth API] Error during authentication:', error);
+    if (error instanceof Error) {
+      console.error('[Auth API] Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+    }
+    // NOTE: In production, consider removing error details from response for security
+    return res.status(500).json({ 
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'production' ? undefined : (error instanceof Error ? error.message : 'Unknown error')
+    });
   }
 }
